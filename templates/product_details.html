@@ -1,0 +1,262 @@
+{% extends 'layout.html' %}
+
+{% block content %}
+<div class="h-[90vh] w-full">
+    <div class="flex h-full w-full justify-center items-center">
+        <!-- Product Details -->
+        <div class="w-[70%] p-6 bg-zinc-300">
+            <h2 class="text-sm font-semibold mb-4">{{gender}} > {{product.category}} > {{ product.name }}</h2>
+
+            <div class="flex gap-6">
+                <div class="bg-white h-[250px] p-4 mb-4 w-[50%]">
+                    <img src="{{ url_for('static', filename=img) }}" id="img" alt="{{ product.name }}" class="object-contain h-full w-full">
+                </div>
+                <div class="flex flex-col w-[50%]">
+                    <p class="text-3xl font-semibold">{{product.brand}}</p>
+                    <p class="text-md ">{{product.name}}</p>
+                    
+                    <div class="bg-zinc-200 mt-1 flex items-center gap-2 rounded-3xl px-2 border-[1px] border-zinc-500 w-fit">
+                         <div class="flex item-center gap-1 justify-center p-1">
+                            {{product.rating}}
+                            <i class="bi bi-star-fill text-green-500"></i>
+                         </div>
+                         <div class="border-l-[1px] border-zinc-500 p-1">
+                            {{product.reviews}} Reviews
+                         </div>
+                    </div>
+                    
+                    <div class="my-2 h-[1px] bg-slate-400 w-full">
+
+                    </div>
+
+                    <p class="text-3xl font-semibold">₹ {{ product.price }}  </p>
+                    <p class="font-semibold text-emerald-600 text-sm">(inclusive of all taxes)</p>
+                    
+                    <div class="flex flex-col my-2">
+                        <h4 class="text-xl font-semibold">Select Size</h4>
+                        <div class="flex gap-3 mt-1">
+                            <div class="rounded-full border-2 border-zinc-500 h-9 w-9 flex items-center justify-center">
+                                S
+                            </div>
+                            <div class="rounded-full border-2 border-zinc-500 h-9 w-9 flex items-center justify-center">
+                                M
+                            </div>
+                            <div class="rounded-full border-2 border-zinc-500 h-9 w-9 flex items-center justify-center">
+                                L
+                            </div>
+                            <div class="rounded-full border-2 border-zinc-500 h-9 w-9 flex items-center justify-center">
+                                XL
+                            </div>
+                            
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+
+            <!-- Action Buttons -->
+            <div class="flex gap-4 items-center mt-6">
+                <button class="bg-green-500 text-white font-semibold py-2 px-4 rounded-md">Buy Now</button>
+                <button class="bg-blue-500 text-white font-semibold py-2 px-4 rounded-md" onclick="toggleModal()">Try It</button>
+            </div>
+        </div>
+    </div>
+
+
+    <div id="modal" class="hidden h-[100vh] w-[100vw] fixed left-0 top-0 bg-[rgba(0,0,0,0.8)] flex justify-center items-center">
+        <div class="relative bg-white rounded-md p-4 flex  w-[40vw]">
+            <div class=" p-2 h-[30px] w-[30px] rounded-full bg-zinc-600 text-white font-bold flex items-center justify-center absolute top-1 right-1 cursor-pointer" onclick="toggleModal(0)">X</div>
+            <div class="upload-container">
+                <div class="upload-mid-section">
+
+                    <input accept="image/*" type="file" multiple="false" hidden id="fileInput">
+                    <div class="file-upload" onclick="browseFiles()" id="dragDropArea">
+                        
+                        <div>
+                            Click to Browse or Drag and Drop your Image here.
+                            <!-- <img class="m-auto mt-2 h-[40px] w-[40px]" src="../static/assets/arrow-right-circle.svg" alt=""> -->
+                        </div>
+                    </div>
+
+                    <div class="uploading-area">
+                
+                        <!-- <div class="uploading-file">
+                            <img src="../static/images/file-earmark-arrow-up-fill.svg" alt="">
+                            <div>Filename.pdf</div>
+                            <div id="progress-bar"></div>
+                        </div>
+                        <div class="uploaded-file">
+                            <img src="../static/images/file-earmark-check-fill (1).svg" alt="">
+                            <div>Filename.pdf</div>
+                        </div> -->
+                    </div>
+
+                    <button class="upload-btn" onclick="uploadFile()">Upload File</button>
+                </div>
+                
+            </div>
+            
+        </div>
+    </div>
+
+    <div id="modal2" class="hidden h-[100vh] w-[100vw] fixed left-0 top-0 bg-[rgba(0,0,0,0.8)] flex justify-center items-center">
+        <div class="relative bg-white rounded-md p-8 flex flex-col w-[500px]">
+
+            <h4>This is how it will look on you !</h4>
+
+            <div class="p-2 h-[30px] w-[30px] rounded-full bg-zinc-600 text-white font-bold flex items-center justify-center absolute top-1 right-1 cursor-pointer" onclick="toggleModal2()">X</div>
+            
+            <img id="finalImage" src="" alt="" class="mt-4 w-full h-full object-cover">
+        </div>
+    </div>
+
+</div>
+
+<script>
+
+    let product,gender,category,index;
+    let modalOpen = false;
+    let modalOpen2 = false;
+    
+
+    function toggleModal(){
+
+        const modal = document.getElementById("modal");
+        modalOpen=!modalOpen;
+
+        modalOpen?modal.style.display="flex":modal.style.display="none";
+
+    }
+    function toggleModal2(){
+       
+       const modal2 = document.getElementById("modal2");
+       modalOpen2=!modalOpen2;
+
+       modalOpen2?modal2.style.display="flex":modal2.style.display="none";
+
+   }
+
+    document.addEventListener('DOMContentLoaded', function () {
+
+        let productData = '{{ product | tojson | safe }}';
+        product = JSON.parse(productData)
+        gender = '{{ gender | tojson | safe }}';
+        let indexData = '{{ index | tojson | safe }}';
+        index = parseInt(indexData)
+        category=product.category;
+
+        console.log({gender,category,index})
+        
+    });
+
+    const dragDropArea = document.getElementById('dragDropArea');
+    const fileInput = document.getElementById('fileInput');
+    const uploadingArea = document.querySelector('.uploading-area');
+    
+
+    function browseFiles() {
+        fileInput.click();
+    }
+
+    dragDropArea.addEventListener('dragover', function (e) {
+        e.preventDefault();
+        this.classList.add('drag-over');
+    });
+
+    dragDropArea.addEventListener('dragleave', function () {
+        this.classList.remove('drag-over');
+    });
+
+    dragDropArea.addEventListener('drop', function (e) {
+        e.preventDefault();
+        this.classList.remove('drag-over');
+        handleFiles(e.dataTransfer.files[0]);
+    });
+
+    fileInput.addEventListener('change', function () {
+        handleFiles(this.files[0]);
+    });
+
+    function handleFiles(file) {
+        
+        uploadingArea.innerHTML = '';
+        const status = document.querySelector('h3');
+        if(status)
+            status.remove();
+
+        
+        const uploadingFileDiv = document.createElement('div');
+        uploadingFileDiv.classList.add('uploading-file');
+        uploadingFileDiv.innerHTML = `<img src="../static/assets/file-earmark-arrow-up-fill.svg" alt="">
+                            <div>${file.name}</div>
+                            <div id="progress-bar"></div>`;
+
+        uploadingArea.appendChild(uploadingFileDiv);
+        simulateFileUpload(file, uploadingFileDiv);
+        
+    }
+
+    function simulateFileUpload(file, progressDiv) {
+        let progress = 0;
+        const interval = setInterval(() => {
+            progress += Math.random() * 20; // Simulating progress
+            progress = Math.min(progress, 100);
+
+            progressDiv.querySelector('#progress-bar').style.width = `${progress}%`;
+
+            if (progress === 100) {
+                clearInterval(interval);
+                onUploadComplete(file, progressDiv);
+            }
+        }, 500);
+    }
+
+    function onUploadComplete(file, progressDiv) {
+        const uploadedFileDiv = document.createElement('div');
+        uploadedFileDiv.classList.add('uploaded-file');
+        uploadedFileDiv.innerHTML = `
+        <img src="../static/assets/file-earmark-check-fill.svg" alt="">
+        <div>${file.name}</div>
+        `;
+        uploadingArea.appendChild(uploadedFileDiv);
+
+        // Remove the progress div
+        progressDiv.remove();
+    }
+    
+    function uploadFile() {
+        const fileInput = document.getElementById('fileInput');
+       
+        if (fileInput.files.length === 0) {
+            alert('Please select a file before uploading.');
+            return;
+        }
+
+        const formData = new FormData();
+        formData.append('file', fileInput.files[0]);
+        formData.append('index', index);
+    
+        fetch(`/${gender}/${category}/${index}`, {
+            method: 'POST',
+            body: formData
+        })
+        .then(response => response.json())
+        .then(data => {
+            console.log('Upload successful:', data);
+
+            toggleModal(0);
+
+            const img = document.getElementById("finalImage");
+            img.src=data;
+            toggleModal2();
+        })
+        .catch(error => {
+            console.error('Error during upload:', error);
+            
+        });
+    }
+
+    
+
+</script>
+{% endblock %}
